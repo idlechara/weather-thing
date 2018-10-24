@@ -1,16 +1,13 @@
-import React, { Component } from 'react';
-import './App.css';
-import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
- 
+import React, { Component } from "react";
+import "./App.css";
+import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
 
 class App extends Component {
   onMapClicked(mapProps, map, clickEvent) {
-    console.log(mapProps);
-    console.log(map);
-    console.log(clickEvent);
-    // Send to microservice
-    // retrieve from microservice
-    // display
+    const coordinates = {
+      lat: clickEvent.latLng.lat(),
+      lng: clickEvent.latLng.lng()
+    };
   }
   render() {
     return (
@@ -19,5 +16,5 @@ class App extends Component {
   }
 }
 export default GoogleApiWrapper({
-  apiKey: ('AIzaSyAF_BYy0S9FfOStIU-JZayxNteppkV7YZU')
-})(App)
+  apiKey: "AIzaSyAF_BYy0S9FfOStIU-JZayxNteppkV7YZU"
+})(App);

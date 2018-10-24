@@ -1,0 +1,14 @@
+{
+  "name": "darkskyproxy",
+  "version": "1.0.0",
+  "description": "DarkSky proxy microservice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Erik Regla",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}

@@ -1,13 +1,21 @@
-import axios from 'axios';
-import bodyParser from 'body-parser';
-import express from 'express';
+const axios = require('axios');
+const bodyParser = require('body-parser');
+const express = require('express');
+const redis = require('redis');
 
-const app = express();
 const port = process.env.PORT || 8000;
 const darkskyApiKey = process.env.DARKSKY_API_KEY || "THIS_IS_A_DUMMY_KEY";
+const redisHost = process.env.REDIS_HOST || "localhost";
+const redisPort = process.env.REDIS_PORT || "6379";
+
+
+const app = express();
+const redisClient = redis.createClient({
+  host: redisHost,
+  port: redisPort
+});
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
 
 /**
  * Request weather status using darksky. This method has a 10% of chance to fail, if so,
@@ -24,11 +32,14 @@ const requestWeather = (lat, lng) => {
     return Promise.reject(new Error("DarkSky call failed -as requested-"));
   }
   
+  const redisKey = lat + "," + lng;
+  
   return axios.get(`https://api.darksky.net/forecast/${darkskyApiKey}/${lat},${lng}`)
   .then(response => {
     let temperature = response.data.currently.temperature;
     // convert to Celsius
     temperature = ((temperature - 32) / (9.0 / 5.0));
+
     return temperature
   })
   .catch(err => err);
@@ -42,17 +53,26 @@ app.get('/API/query', urlencodedParser, (req, res) => {
 
   // Because of this is why I hate javascript and it's promises.
   // RxJS is a better way to handle this but as it's not SO adopted...
-  const lambdaRetry = () => {
+  const lambdaQueryDarksky = () => {
     requestWeather(coordinates.lat, coordinates.lng)
     .then(temperature => {
+      // save to redis and expire after one hour (which I think that is a good expiry time)
+      redisClient.set(`${coordinates.lat},${coordinates.lng}`, temperature, 'EX', 60*60);
       res.json(temperature);
     })
     .catch(err => {
       console.error(err.message);
-      lambdaRetry();
+      lambdaQueryDarksky();
     });
   };
-  lambdaRetry();
+
+  // query redis, if not, then darksky
+  redisClient.get(`${coordinates.lat},${coordinates.lng}`, (err, reply) => {
+    if(reply){
+      return res.json(reply);
+    }
+    lambdaQueryDarksky();
+  })
 });
 
 const server = app.listen(port, () => {

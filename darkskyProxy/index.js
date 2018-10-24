@@ -1,12 +1,24 @@
-const express = require("express");
+import axios from 'axios';
+import bodyParser from 'body-parser';
+import express from 'express';
 const app = express();
-const bodyParser = require('body-parser');
-
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-// respond with "hello world" when a GET request is made to the homepage
-app.get('/', urlencodedParser, (req, res) => {
-  console.log(req.body);
+
+app.get('/API/query', urlencodedParser, (req, res) => {
+  const coordinates = {
+    lat: req.query.lat,
+    lng: req.query.lng
+  }
+  
+  console.log(coordinates);
+
+  const key="2d3cd800738794b6698c638714579a64";
+
+  axios.get(`https://api.darksky.net/forecast/${key}/${coordinates.lat},${coordinates.lng}`).then(response => {
+    console.log(response.data);
+  })
+  
   res.send("hello world");
 });
 

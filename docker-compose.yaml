@@ -17,14 +17,14 @@ services:
         REACT_APP_GOOGLE_API_KEY: ${REACT_APP_GOOGLE_API_KEY}
     labels: 
       - traefik.backend=client
-      - "traefik.frontend.rule=Host:client.docker.localhost"
+      - "traefik.frontend.rule=Host:${DOMAIN_HOST}"
 
   darksky: 
     build: 
       context: ./darksky
     labels: 
       - traefik.backend=darksky
-      - "traefik.frontend.rule=Host:client.docker.localhost;PathPrefix:/API"
+      - "traefik.frontend.rule=Host:${DOMAIN_HOST};PathPrefix:/API"
     links:
       - "redis:redis"
     depends_on: 

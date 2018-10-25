@@ -25,7 +25,7 @@ class App extends Component {
           address = response.data.results.reverse()[1].formatted_address;
           coordinates = response.data.results.reverse()[1].geometry.location;
 
-          axios
+          return axios
             .get(`/API/query?lat=${coordinates.lat}&lng=${coordinates.lng}`)
             .then(response => {
               swal({

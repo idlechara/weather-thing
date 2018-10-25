@@ -1,0 +1,52 @@
+version: '3.4'
+services:
+  traefik: 
+    command: "--web --docker --docker.domain=docker.localhost --logLevel=DEBUG"
+    image: traefik
+    ports: 
+      - "80:80"
+      - "8080:8080"
+    volumes: 
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/dev/null:/traefik.toml"
+
+  client:
+    build:
+      context: ./client
+      args:
+        REACT_APP_GOOGLE_API_KEY: ${REACT_APP_GOOGLE_API_KEY}
+    labels: 
+      - traefik.backend=client
+      - "traefik.frontend.rule=Host:client.docker.localhost"
+
+  darksky: 
+    build: 
+      context: ./darksky
+    labels: 
+      - traefik.backend=darksky
+      - "traefik.frontend.rule=Host:client.docker.localhost;PathPrefix:/API"
+    links:
+      - "redis:redis"
+    depends_on: 
+      - redis
+    environment:
+      PORT: ${PORT}
+      DARKSKY_API_KEY: ${DARKSKY_API_KEY}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT}
+
+  redis: 
+    image: redis:5.0.0-alpine
+
+
+  # whoami1: 
+  #   image: emilevauge/whoami
+  #   labels: 
+  #     - traefik.backend=whoami
+  #     - "traefik.frontend.rule=Host:whoami.docker.localhost"
+
+  # whoami2: 
+  #   image: emilevauge/whoami
+  #   labels: 
+  #     - traefik.backend=whoami2
+  #     - "traefik.frontend.rule=Path:whoami.docker.localhost/test2/, _/mwas/_"

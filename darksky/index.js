@@ -65,8 +65,8 @@ app.get('/API/query', urlencodedParser, (req, res) => {
 
   // query redis, if not, then darksky
   redisClient.get(`${coordinates.lat},${coordinates.lng}`, (err, reply) => {
-    if(reply){
-      return res.json(reply);
+    if(reply) {
+      return res.json(parseFloat(reply));
     }
     lambdaQueryDarksky();
   })

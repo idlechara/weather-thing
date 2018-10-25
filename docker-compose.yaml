@@ -37,16 +37,3 @@ services:
 
   redis: 
     image: redis:5.0.0-alpine
-
-
-  # whoami1: 
-  #   image: emilevauge/whoami
-  #   labels: 
-  #     - traefik.backend=whoami
-  #     - "traefik.frontend.rule=Host:whoami.docker.localhost"
-
-  # whoami2: 
-  #   image: emilevauge/whoami
-  #   labels: 
-  #     - traefik.backend=whoami2
-  #     - "traefik.frontend.rule=Path:whoami.docker.localhost/test2/, _/mwas/_"

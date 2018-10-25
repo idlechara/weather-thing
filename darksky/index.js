@@ -8,7 +8,6 @@ const darkskyApiKey = process.env.DARKSKY_API_KEY || "THIS_IS_A_DUMMY_KEY";
 const redisHost = process.env.REDIS_HOST || "localhost";
 const redisPort = process.env.REDIS_PORT || "6379";
 
-
 const app = express();
 const redisClient = redis.createClient({
   host: redisHost,
@@ -33,13 +32,11 @@ const requestWeather = (lat, lng) => {
   }
   
   const redisKey = lat + "," + lng;
-  
   return axios.get(`https://api.darksky.net/forecast/${darkskyApiKey}/${lat},${lng}`)
   .then(response => {
     let temperature = response.data.currently.temperature;
     // convert to Celsius
     temperature = ((temperature - 32) / (9.0 / 5.0));
-
     return temperature
   })
   .catch(err => err);

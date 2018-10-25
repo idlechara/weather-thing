@@ -1,0 +1,26 @@
+FROM node:10.12.0-alpine
+
+ARG REACT_APP_GOOGLE_API_KEY
+
+RUN echo "REACT_APP_GOOGLE API KEY = $REACT_APP_GOOGLE_API_KEY"
+
+COPY package-lock.json package-lock.json
+COPY package.json package.json
+COPY public public
+COPY src src
+
+RUN npm install --global yarn
+
+RUN yarn
+RUN yarn build
+
+RUN rm -rf package-lock.json
+RUN rm -rf package.json
+RUN rm -rf public
+RUN rm -rf src
+RUN rm -rf .node_modules
+
+RUN yarn global add serve
+
+EXPOSE 80
+CMD cd build && serve -s -n -l 80

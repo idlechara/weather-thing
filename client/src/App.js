@@ -11,7 +11,7 @@ class App extends Component {
       lng: clickEvent.latLng.lng()
     };
 
-    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates.lat},${coordinates.lng}&key=AIzaSyAF_BYy0S9FfOStIU-JZayxNteppkV7YZU`).then(response => {
+    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates.lat},${coordinates.lng}&key=${process.env.REACT_APP_GOOGLE_API_KEY}`).then(response => {
       let address = "";
       try {
         address = response.data.results.reverse()[1].formatted_address;
@@ -21,11 +21,12 @@ class App extends Component {
         // you have not clicked in a country
       }
 
-      axios.get(`http://localhost:8081/API/query?lat=${coordinates.lat}&lng=${coordinates.lng}`).then(response => {
+      axios.get(`/API/query?lat=${coordinates.lat}&lng=${coordinates.lng}`).then(response => {
         console.log(response.data);
       });
     })
   }
+
   render() {
     return (
       <Map google={this.props.google} zoom={2} onClick={this.onMapClicked} />
@@ -33,5 +34,5 @@ class App extends Component {
   }
 }
 export default GoogleApiWrapper({
-  apiKey: "AIzaSyAF_BYy0S9FfOStIU-JZayxNteppkV7YZU"
+  apiKey: process.env.REACT_APP_GOOGLE_API_KEY
 })(App);

@@ -16,6 +16,13 @@ const redisClient = redis.createClient({
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+class AcidError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AcidError';
+  }
+}
+
 /**
  * Request weather status using darksky. This method has a 10% of chance to fail, if so,
  * a exception is raised.
@@ -28,7 +35,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
 const requestWeather = (lat, lng) => {
   // Compute failure (?)
   if ( Math.random() <= 0.1 ) {
-    return Promise.reject(new Error("DarkSky call failed -as requested-"));
+    return Promise.reject(new AcidError("DarkSky call failed -as requested-"));
   }
   
   const redisKey = lat + "," + lng;
@@ -58,8 +65,13 @@ app.get('/API/query', urlencodedParser, (req, res) => {
       res.json(temperature);
     })
     .catch(err => {
-      console.error(err.message);
-      lambdaQueryDarksky();
+      if(err instanceof AcidError){
+        console.log(err.message);
+        lambdaQueryDarksky();
+      }
+      else {
+        console.log("Unhandled error. As this error does not belong to the expected class, it will be ignored and execution will continue without retrying.");
+      }
     });
   };
 
